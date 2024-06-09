@@ -1,11 +1,7 @@
 <?php
 
-use App\Http\Controllers\ContactanosControlle;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\CursoController;
-use App\Mail\ContactanosMailable;
-use Illuminate\Support\Facades\Mail;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,19 +14,18 @@ use Illuminate\Support\Facades\Mail;
 |
 */
 
-Route::get('/', HomeController::class)->name( 'home' );
+Route::get('/', function () {
+    return view('welcome');
+});
 
-Route::resource('cursos',  CursoController::class);
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::view('nosotros','nosotros')->name('nosotros');
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-// Route::get('contactanos', function(){
-//     Mail::to('juanfelipegalvis@gmail.com')->send(new ContactanosMailable);
-//     return 'Mensaje enviado';
-// })->name('contactanos');
-
-Route::get('contactanos',[ContactanosControlle::class, 'index'])
-    ->name('contactanos.index');
-
-Route::post('contactanos',[ContactanosControlle::class, 'store'])
-    ->name('contactanos.store');
+require __DIR__.'/auth.php';
